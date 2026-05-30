@@ -72,7 +72,7 @@ curl -X POST -F image=@path/to/scan.jpg http://127.0.0.1:5000/predict
 
 - Model file: model/brain_tumor_vgg16_best_fixed.h5
 - Input size: 224 x 224
-- Preprocessing: VGG16 preprocess_input (do not normalize with /255.0)
+- Preprocessing: VGG16 preprocess_input (do not normalize with /255.0).
 
 ## Disclaimer
 
