@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>NeuraScan - Brain Tumor Detection</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <main class="app-shell">
+
+        <!-- Header -->
+        <header class="topbar">
+            <div class="brand">
+                <div class="brand-icon">🧠</div>
+
+                <div class="brand-text">
+                    <h1>NeuraScan</h1>
+                    <p>Brain tumor detection - MRI analysis</p>
+                </div>
+            </div>
+
+        </header>
+
+        <!-- Main Content -->
+        <section class="main-grid">
+
+            <!-- Left Column -->
+            <div class="left-column">
+
+                <!-- Upload Card -->
+                <section class="card top-card">
+                    <div class="section-title">
+                        <h2>MRI Image Input</h2>
+                    </div>
+
+                    <div id="uploadBox" class="upload-box">
+                        <input
+                            type="file"
+                            id="imageInput"
+                            accept="image/png, image/jpeg, image/jpg, image/bmp, image/webp"
+                            hidden
+                        />
+
+                        <div id="uploadPlaceholder" class="upload-placeholder">
+                            <div class="upload-icon">⬆</div>
+                            <h3>Upload MRI Scan</h3>
+                            <p>PNG, JPG, JPEG, BMP, WEBP supported</p>
+                        </div>
+
+                        <img id="previewImage" class="preview-image hidden" alt="MRI Preview" />
+                    </div>
+
+                    <div class="scan-types">
+                        <span class="active">T1-weighted</span>
+                        <span>T2-weighted</span>
+                        <span>FLAIR</span>
+                        <span>DWI</span>
+                    </div>
+
+                    <button id="analyzeBtn" class="primary-btn" disabled>
+                        Analyze MRI
+                    </button>
+                </section>
+
+                <!-- Tumor Types -->
+                <section class="card bottom-card">
+                    <div class="section-title">
+                        <h2>Tumor Types Covered</h2>
+                    </div>
+
+                    <div class="tumor-grid">
+                        <div class="tumor-card">
+                            <h3>Glioblastoma / Glioma</h3>
+                            <p class="danger">Grade IV - Malignant</p>
+                        </div>
+
+                        <div class="tumor-card">
+                            <h3>Meningioma</h3>
+                            <p class="warning">Grade I-II - Benign</p>
+                        </div>
+
+                        <div class="tumor-card">
+                            <h3>Pituitary Adenoma</h3>
+                            <p class="safe">Non-cancerous</p>
+                        </div>
+
+                        <div class="tumor-card">
+                            <h3>No Tumor</h3>
+                            <p class="safe">Normal pattern</p>
+                        </div>
+                    </div>
+
+                    <div class="feature-row">
+                        <div class="feature-box">
+                            <strong>4</strong>
+                            <span>Tumor classes</span>
+                        </div>
+
+                        <div class="feature-box">
+                            <strong>XAI</strong>
+                            <span>Grad-CAM</span>
+                        </div>
+
+                        <div class="feature-box">
+                            <strong>AI</strong>
+                            <span>Assisted</span>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- Right Column -->
+            <div class="right-column">
+
+                <section class="card results-card top-card">
+                    <div class="section-title">
+                        <h2>Analysis Results</h2>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="emptyState" class="empty-state">
+                        <div class="brain-icon">🧠</div>
+
+                        <h3>Upload an MRI image to start analysis</h3>
+
+                        <p>
+                            After uploading an MRI scan, the model will analyze it and classify
+                            the scan into one of the brain tumor categories.
+                        </p>
+                    </div>
+
+                    <!-- Loading State -->
+                    <div id="loadingState" class="loading-state hidden">
+                        <div class="spinner"></div>
+
+                        <h3>Analyzing MRI...</h3>
+
+                        <p>Please wait while the system processes the image.</p>
+                    </div>
+
+                    <!-- Error State -->
+                    <div id="errorState" class="error-state hidden">
+                        <h3>Analysis Failed</h3>
+
+                        <p id="errorMessage"></p>
+                    </div>
+
+                    <!-- Result Content -->
+                    <div id="resultContent" class="result-content hidden">
+
+                        <div class="result-top-stack">
+
+                            <!-- Prediction Result -->
+                            <div class="prediction-summary">
+                                <span id="predictionBadge" class="prediction-badge">
+                                    Prediction
+                                </span>
+
+                                <h2 id="predictionName">-</h2>
+
+                                <div class="confidence-box">
+                                    <span>Confidence</span>
+                                    <strong id="confidenceValue">-</strong>
+                                </div>
+
+                                <div id="confidenceStatus" class="confidence-status">
+                                    -
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </section>
+
+                <section class="card bottom-card medical-card">
+                    <div class="section-title">
+                        <h2>Medical Information</h2>
+                    </div>
+
+                    <p id="tumorGrade" class="grade-text"></p>
+
+                    <p id="tumorDescription" class="medical-description"></p>
+
+                    <p id="recommendationText" class="recommendation"></p>
+                </section>
+
+            </div>
+
+            <!-- Third Column -->
+            <div class="third-column">
+                <section class="card gradcam-card top-card">
+                    <div class="section-title">
+                        <h2>Grad-CAM Explainability</h2>
+                    </div>
+
+                    <div id="gradcamSection" class="gradcam-content hidden">
+                        <p class="small-text">
+                            The highlighted regions represent areas that influenced the model prediction.
+                        </p>
+
+                        <img id="gradcamImage" class="gradcam-image" alt="Grad-CAM Heatmap" />
+                    </div>
+                </section>
+
+                <section class="card result-section bottom-card">
+                    <h3>Class Probabilities</h3>
+
+                    <div class="chart-wrapper">
+                        <canvas id="probabilityChart"></canvas>
+                    </div>
+                </section>
+            </div>
+
+        </section>
+
+        <!-- Disclaimer -->
+        <section class="disclaimer">
+            <strong>Medical Disclaimer:</strong>
+            This platform is intended for educational and research demonstration only.
+            It is not a substitute for professional medical diagnosis. Final interpretation
+            must always be made by a qualified medical expert.
+        </section>
+
+    </main>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
