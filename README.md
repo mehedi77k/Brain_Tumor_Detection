@@ -1,13 +1,14 @@
 # NeuraScan - Brain Tumor Detection
 
-NeuraScan is a Flask-based web application that classifies brain MRI images into four categories (glioma, meningioma, pituitary, or no tumor). It provides Grad-CAM explainability and a probability chart to support transparent, educational demonstrations.
+NeuraScan is a Flask web app that classifies brain MRI images into four categories (glioma, meningioma, pituitary, or no tumor). It also generates Grad-CAM explanations and a probability chart for transparent, educational demonstrations.
 
-## Highlights
+## Features
 
-- MRI image upload with preview
+- Drag-and-drop MRI upload with preview
 - VGG16-based classifier with class probabilities
 - Grad-CAM heatmap overlay for explainability
 - Medical info panel with grade, description, and recommendation
+- Lightweight single-page UI
 
 ## Tech Stack
 
@@ -22,11 +23,26 @@ NeuraScan is a Flask-based web application that classifies brain MRI images into
 - templates/index.html - UI layout
 - static/css/style.css - UI styling
 - static/js/app.js - Frontend logic and chart rendering
-- model/ - Trained model and class index mapping
+- model/ - Trained model, class index mapping, notebooks
+
+## Requirements
+
+- Python 3.9+ recommended
+- CPU or GPU TensorFlow runtime supported by your environment
 
 ## Setup
 
-Install dependencies:
+1) Create and activate a virtual environment
+
+```bash
+python -m venv venv
+```
+
+```bash
+venv\Scripts\activate
+```
+
+2) Install dependencies
 
 ```bash
 pip install -r requirements.txt
@@ -38,7 +54,7 @@ pip install -r requirements.txt
 python app.py
 ```
 
-Then open:
+Open:
 
 ```
 http://127.0.0.1:5000
@@ -53,16 +69,18 @@ Returns server status, model readiness, and class names.
 ### POST /predict
 
 Form field:
+
 - image (file upload)
 
-Response:
+Response fields:
+
 - predicted class
 - confidence
 - class probabilities
 - Grad-CAM image (base64)
 - medical info fields
 
-Example request:
+Example:
 
 ```bash
 curl -X POST -F image=@path/to/scan.jpg http://127.0.0.1:5000/predict
@@ -72,7 +90,13 @@ curl -X POST -F image=@path/to/scan.jpg http://127.0.0.1:5000/predict
 
 - Model file: model/brain_tumor_vgg16_best_fixed.h5
 - Input size: 224 x 224
-- Preprocessing: VGG16 preprocess_input (do not normalize with /255.0).
+- Preprocessing: VGG16 preprocess_input (do not normalize with /255.0)
+
+## Troubleshooting
+
+- If the model fails to load, confirm the file exists and matches the expected name.
+- If predictions look incorrect, verify preprocessing matches VGG16 requirements.
+- For slow inference, ensure you are not running other heavy processes or switch to a GPU runtime.
 
 ## Disclaimer
 
